@@ -14,6 +14,11 @@ read -rp "Node ID (e.g., saem_n2): " NODE_ID
 read -rp "Collector URL base (e.g., http://140.xxx.xxx.xxx:8080): " COLLECTOR_BASE
 read -rp "Token for ${NODE_ID}: " TOKEN
 
+# Guardrails: evita “unbound variable” y entradas vacías
+: "${NODE_ID:?missing NODE_ID}"
+: "${COLLECTOR_BASE:?missing COLLECTOR_BASE}"
+: "${TOKEN:?missing TOKEN}"
+
 INGEST_URL="${COLLECTOR_BASE%/}/ingest"
 
 echo
@@ -65,7 +70,14 @@ tar xzf /tmp/saem-node.tar.gz -C /
 echo "[9/9] Configuring uploader + enabling services..."
 UP="/opt/saem/src/uploader.py"
 
-# TOKEN line
+# Sanity check: uploader.py debe existir en el tarball
+if [[ ! -f "$UP" ]]; then
+  echo "ERROR: uploader not found at $UP"
+  echo "Did the saem-node.tar.gz include /opt/saem/src/uploader.py ?"
+  exit 1
+fi
+
+# TOKEN line (reemplaza TOKEN = "..."
 sed -i -E "s/^TOKEN\s*=\s*\".*\"/TOKEN = \"${TOKEN}\"/g" "$UP"
 
 # COLLECTOR_URL line (insert if missing)
@@ -86,6 +98,7 @@ echo
 echo "✅ Done."
 echo "Quick checks:"
 echo "  chronyc tracking"
+echo "  timedatectl status"
 echo "  systemctl status saem --no-pager -l"
 echo "  systemctl status saem-uploader --no-pager -l"
 echo "  tail -n 50 /opt/saem/logs/uploader.log"
