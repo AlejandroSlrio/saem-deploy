@@ -10,9 +10,9 @@ SAEM_TARBALL_SHA256_URL="https://github.com/AlejandroSlrio/saem-deploy/releases/
 echo "=== SAEM node bootstrap ==="
 echo
 
-read -rp "Node ID (e.g., saem_n2): " NODE_ID
-read -rp "Collector URL base (e.g., http://140.xxx.xxx.xxx:8080): " COLLECTOR_BASE
-read -rp "Token for ${NODE_ID}: " TOKEN
+read -rp "Node ID (e.g., saem_n2): " NODE_ID </dev/tty
+read -rp "Collector URL base (e.g., http://140.xxx.xxx.xxx:8080): " COLLECTOR_BASE </dev/tty
+read -rp "Token for ${NODE_ID}: " TOKEN </dev/tty
 
 # Guardrails: evita “unbound variable” y entradas vacías
 : "${NODE_ID:?missing NODE_ID}"
