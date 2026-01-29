@@ -3,8 +3,8 @@ set -euo pipefail
 
 # ====== CONFIG (EDIT THIS) ======
 # URL al asset saem-node.tar.gz en GitHub Release (direct download)
-SAEM_TARBALL_URL="PON_AQUI_URL_DEL_RELEASE/saem-node.tar.gz"
-SAEM_TARBALL_SHA256_URL="PON_AQUI_URL_DEL_RELEASE/saem-node.tar.gz.sha256"
+SAEM_TARBALL_URL="https://github.com/AlejandroSlrio/saem-deploy/releases/download/v0.1.0/saem-node.tar.gz"
+SAEM_TARBALL_SHA256_URL="https://github.com/AlejandroSlrio/saem-deploy/releases/download/v0.1.0/saem-node.tar.gz.sha256"
 # ================================
 
 echo "=== SAEM node bootstrap ==="
