@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ===================== CONFIG (EDIT) =====================
-RELEASE_BASE="https://github.com/AlejandroSlrio/saem-deploy/releases/download/v0.1.0"
+RELEASE_BASE="https://github.com/AlejandroSlrio/saem-deploy/releases/download/v0.1.1"
 
 # Node bundle must untar into /opt/saem (and may include systemd units)
 SAEM_TARBALL_URL="${RELEASE_BASE}/saem-node.tar.gz"
