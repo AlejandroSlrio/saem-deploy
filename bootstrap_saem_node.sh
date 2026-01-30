@@ -70,6 +70,8 @@ curl -fL -o /opt/saem/models/yamnet/yamnet.tflite "$YAMNET_TFLITE_URL"
 curl -fL -o /opt/saem/models/yamnet/yamnet_class_map.csv "$YAMNET_CLASSMAP_URL"
 
 echo "[7/10] Python venv (local, clean)..."
+rm -rf /opt/saem/venv311
+$PYTHON_BIN -m venv /opt/saem/venv311
 PYTHON_BIN="$(command -v python3.11 || command -v python3)"
 $PYTHON_BIN -m venv /opt/saem/venv311
 
