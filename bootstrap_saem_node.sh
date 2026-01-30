@@ -70,11 +70,32 @@ curl -fL -o /opt/saem/models/yamnet/yamnet.tflite "$YAMNET_TFLITE_URL"
 curl -fL -o /opt/saem/models/yamnet/yamnet_class_map.csv "$YAMNET_CLASSMAP_URL"
 
 echo "[7/10] Python venv (local, clean)..."
-rm -rf /opt/saem/venv311
-$PYTHON_BIN -m venv /opt/saem/venv311
-PYTHON_BIN="$(command -v python3.11 || command -v python3)"
-$PYTHON_BIN -m venv /opt/saem/venv311
 
+# Elegir python (preferir 3.11 si existe)
+PYTHON_BIN="$(command -v python3.11 || true)"
+if [[ -z "${PYTHON_BIN}" ]]; then
+  PYTHON_BIN="$(command -v python3 || true)"
+fi
+
+if [[ -z "${PYTHON_BIN}" ]]; then
+  echo "ERROR: python3 not found. Installing..."
+  apt update
+  apt install -y python3 python3-venv
+  PYTHON_BIN="$(command -v python3)"
+fi
+
+# Asegura módulo venv disponible (en Debian a veces falta python3-venv)
+if ! "${PYTHON_BIN}" -c "import venv" >/dev/null 2>&1; then
+  echo "python venv module missing; installing python3-venv..."
+  apt update
+  apt install -y python3-venv
+fi
+
+# Crear venv limpio
+rm -rf /opt/saem/venv311
+"${PYTHON_BIN}" -m venv /opt/saem/venv311
+
+# Pip deps
 /opt/saem/venv311/bin/pip install --upgrade pip
 /opt/saem/venv311/bin/pip install \
   "numpy<2" scipy sounddevice requests \
@@ -82,6 +103,7 @@ $PYTHON_BIN -m venv /opt/saem/venv311
 /opt/saem/venv311/bin/pip install \
   tflite-runtime \
   --extra-index-url https://www.piwheels.org/simple
+
 
 echo "[8/10] Configure uploader..."
 UP="/opt/saem/src/uploader.py"
