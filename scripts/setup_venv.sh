@@ -30,7 +30,7 @@ source $VENV_PATH/bin/activate
 pip install --upgrade pip
 
 pip install \
-    numpy \
+    "numpy<2" \
     scipy \
     pandas \
     sounddevice \
