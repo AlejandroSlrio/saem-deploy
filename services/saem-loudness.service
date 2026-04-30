@@ -4,13 +4,19 @@ After=nicu-audit.service
 Requires=nicu-audit.service
 
 [Service]
-Type=simple
-ExecStart=/opt/saem/venv311/bin/python -u /opt/nicu_audit/src/saem_loudness_worker_1.py
+User=saem
+WorkingDirectory=/opt/nicu_audit
+
+Environment=PYTHONPATH=/opt/saem/LoudnessModel
+
+ExecStart=/opt/saem/venv311/bin/python -u /opt/nicu_audit/src/saem_loudness_worker.py
+
 Restart=always
 RestartSec=3
-Nice=0
-User=saem
-Group=saem
+
+# 🔥 MUY IMPORTANTE (evita tu error de antes)
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
