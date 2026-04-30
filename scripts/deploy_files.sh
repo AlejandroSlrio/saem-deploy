@@ -24,4 +24,7 @@ chown -R saem:saem /opt/saem
 chmod +x /opt/nicu_audit/bin/setup_loudness_fifo.sh
 chmod +x /opt/nicu_audit/src/saemcclive.sh
 
+echo "[files] Deploying LoudnessModel..."
 
+sudo mkdir -p /opt/saem/LoudnessModel
+sudo rsync -av external/LoudnessModel/ /opt/saem/LoudnessModel/
