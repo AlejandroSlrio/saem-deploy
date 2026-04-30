@@ -1,0 +1,13 @@
+[Unit]
+Description=Fallback HTTPS time sync
+After=network-online.target NetworkManager-wait-online.service
+Wants=network-online.target NetworkManager-wait-online.service
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 30
+ExecStart=/usr/local/bin/https-time-sync.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

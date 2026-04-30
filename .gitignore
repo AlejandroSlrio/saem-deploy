@@ -1,0 +1,16 @@
+# runtime data
+nicu_audit/logs/
+nicu_audit/data/
+nicu_audit/meta/
+nicu_audit/summary/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS/editor
+.DS_Store
+*.swp
+
+# local secrets
+.env

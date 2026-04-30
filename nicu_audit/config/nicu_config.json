@@ -1,0 +1,11 @@
+{
+  "node_id": "nicu_node_01",
+  "device": "plughw:CARD=USBC,DEV=0",
+  "rate": 48000,
+  "channels": 1,
+  "format": "S16_LE",
+  "use_fir": false,
+  "fir_path": "/opt/nicu_audit/config/nicu_eq_fir.npy",
+  "calibration_json": "/opt/nicu_audit/config/nicu_calibration.json",
+  "timezone": "Europe/Dublin"
+}

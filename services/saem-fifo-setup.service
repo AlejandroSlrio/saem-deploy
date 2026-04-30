@@ -1,0 +1,13 @@
+[Unit]
+Description=SAEM Loudness FIFO setup
+DefaultDependencies=no
+After=local-fs.target
+Before=nicu-audit.service saem-loudness.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/nicu_audit/bin/setup_loudness_fifo.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

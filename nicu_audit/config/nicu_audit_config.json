@@ -1,0 +1,9 @@
+{
+  "input_device": null,
+  "use_fir": false,
+  "write_header_if_new": true,
+  "log_chrony": true,
+  "flush_every_rows": 5,
+  "clip_linear_threshold": 0.999,
+  "notes": "NICU audit minimal logger"
+}

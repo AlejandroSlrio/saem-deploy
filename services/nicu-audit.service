@@ -1,0 +1,29 @@
+[Unit]
+Description=NICU Audit Logger v5.2
+Wants=network-online.target NetworkManager-wait-online.service
+After=sound.target network-online.target NetworkManager-wait-online.service https-time-sync.service saem-fifo-setup.service
+Requires=https-time-sync.service saem-fifo-setup.service
+
+[Service]
+Type=simple
+User=saem
+Group=saem
+WorkingDirectory=/opt/nicu_audit/src
+
+# 🔥 Esperar a que audio y tiempo estén listos
+ExecStartPre=/bin/sleep 10
+
+ExecStart=/opt/saem/venv311/bin/python /opt/nicu_audit/src/nicu_audit_levels_v5_1_3.py
+
+Restart=always
+RestartSec=3
+
+# prioridad alta (como ya tenías)
+Nice=-5
+
+# logs (mantienes tu sistema 👍)
+StandardOutput=append:/opt/nicu_audit/logs/nicu_audit.log
+StandardError=append:/opt/nicu_audit/logs/nicu_audit.log
+
+[Install]
+WantedBy=multi-user.target
