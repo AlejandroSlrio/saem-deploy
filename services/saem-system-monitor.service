@@ -1,20 +1,18 @@
 [Unit]
 Description=SAEM System Monitor (CPU / Temperature)
-After=multi-user.target
+After=network.target
 
 [Service]
-Type=simple
+User=saem
+WorkingDirectory=/opt/nicu_audit
+
 ExecStart=/opt/saem/venv311/bin/python -u /opt/nicu_audit/src/saem_system_monitor.py
+
 Restart=always
 RestartSec=5
-Nice=5
-User=saem
-Group=saem
 
-# logs ligeros
-StandardOutput=append:/opt/nicu_audit/logs/system_monitor.log
-StandardError=append:/opt/nicu_audit/logs/system_monitor.log
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
-
