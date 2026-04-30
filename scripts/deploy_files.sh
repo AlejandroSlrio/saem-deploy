@@ -1,30 +1,16 @@
 #!/bin/bash
-set -e
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 echo "[files] Deploying project..."
 
-mkdir -p /opt/nicu_audit
-mkdir -p /opt/saem/models
-mkdir -p /opt/saem/config
-cp ../config/node.env /opt/saem/config/
+sudo mkdir -p /opt/nicu_audit
+sudo rsync -av --delete "$REPO_ROOT/nicu_audit/" /opt/nicu_audit/
 
-
-rsync -av \
-  --exclude 'logs/*' \
-  --exclude 'data/*' \
-  --exclude 'meta/*' \
-  --exclude 'summary/*' \
-  --exclude '*_backup.py' \
-  ../nicu_audit/ /opt/nicu_audit/
-rsync -av ../models/ /opt/saem/models/
-
-chown -R saem:saem /opt/nicu_audit
-chown -R saem:saem /opt/saem
-
-chmod +x /opt/nicu_audit/bin/setup_loudness_fifo.sh
-chmod +x /opt/nicu_audit/src/saemcclive.sh
+sudo mkdir -p /opt/saem/models
+sudo rsync -av "$REPO_ROOT/models/" /opt/saem/models/
 
 echo "[files] Deploying LoudnessModel..."
 
 sudo mkdir -p /opt/saem/LoudnessModel
-sudo rsync -av external/LoudnessModel/ /opt/saem/LoudnessModel/
+sudo rsync -av "$REPO_ROOT/external/LoudnessModel/" /opt/saem/LoudnessModel/
