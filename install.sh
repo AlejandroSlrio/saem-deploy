@@ -55,6 +55,39 @@ bash deploy_services.sh
 echo "[9/9] Health check"
 bash health_check.sh
 
+echo "[runtime] Fixing runtime environment..."
+
+# =========================
+# DIRECTORIOS CRÍTICOS
+# =========================
+mkdir -p /opt/nicu_audit/logs
+mkdir -p /opt/nicu_audit/data
+
+# =========================
+# LOG FILES (evita crash systemd)
+# =========================
+touch /opt/nicu_audit/logs/nicu_audit.log
+touch /opt/nicu_audit/logs/system_monitor.log
+touch /opt/nicu_audit/logs/loudness.log
+
+# =========================
+# FIFO (CRÍTICO para loudness)
+# =========================
+mkfifo /tmp/saem_audio_fifo 2>/dev/null || true
+chown saem:saem /tmp/saem_audio_fifo
+chmod 660 /tmp/saem_audio_fifo
+
+# =========================
+# PERMISOS (CRÍTICO)
+# =========================
+chown -R saem:saem /opt/saem
+chown -R saem:saem /opt/nicu_audit
+
+chmod -R 755 /opt/saem
+chmod -R 755 /opt/nicu_audit
+
+echo "[runtime] OK"
+
 echo "========================================="
 echo " SAEM DEPLOYMENT COMPLETE"
 echo "========================================="
