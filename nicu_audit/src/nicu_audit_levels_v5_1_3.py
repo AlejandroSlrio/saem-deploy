@@ -33,7 +33,7 @@ CONFIG = {
     "data_dir": "/opt/nicu_audit/data",
     "meta_dir": "/opt/nicu_audit/meta",
     "node_id_path": "/etc/saem_node_id",
-    "csv_prefix": "levels_1s",
+    "csv_prefix": "levels",
 
     "int16_fs": 32768.0,
     "clip_threshold": 0.999,
