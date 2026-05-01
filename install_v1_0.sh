@@ -72,7 +72,11 @@ echo "LOCATION=$LOCATION"
 # =========================
 echo "[1/9] Installing dependencies..."
 bash scripts/install_dependencies.sh
-apt install -y libraspberrypi-bin
+echo "[deps] Installing temperature tools..."
+
+if ! command -v vcgencmd >/dev/null 2>&1; then
+    apt install -y raspi-utils-core || true
+fi
 
 # =========================
 # USER SETUP
