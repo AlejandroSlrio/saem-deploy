@@ -9,12 +9,12 @@ WorkingDirectory=/opt/nicu_audit
 
 Environment=PYTHONPATH=/opt/saem/LoudnessModel
 
+ExecStartPre=/bin/bash -c 'i=0; while [ $i -lt 10 ]; do [ -p /tmp/saem_loudness_fifo ] && exit 0; sleep 1; i=$((i+1)); done; exit 1'
 ExecStart=/opt/saem/venv311/bin/python -u /opt/nicu_audit/src/saem_loudness_worker.py
 
 Restart=always
 RestartSec=3
 
-# 🔥 MUY IMPORTANTE (evita tu error de antes)
 StandardOutput=journal
 StandardError=journal
 

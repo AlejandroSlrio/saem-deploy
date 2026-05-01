@@ -11,18 +11,12 @@ OUT = "/opt/nicu_audit/data/system_monitor.csv"
 # =====================
 # TEMPERATURE
 # =====================
-def get_temp():
+def get_temp_c():
     try:
-        out = subprocess.check_output(
-            ["vcgencmd", "measure_temp"],
-            stderr=subprocess.DEVNULL
-        ).decode()
-
-        return float(out.replace("temp=", "").replace("'C\n", ""))
-
+        with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
+            return float(f.read().strip()) / 1000.0
     except Exception:
         return -1.0
-
 
 # =====================
 # CPU LOAD
