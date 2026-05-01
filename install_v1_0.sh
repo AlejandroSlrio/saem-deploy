@@ -113,6 +113,27 @@ bash scripts/setup_venv.sh
 # =========================
 echo "[7/9] Deploy files"
 bash scripts/deploy_files.sh
+echo "[live] Installing saem-live..."
+
+# Ensure bin directory exists
+mkdir -p /opt/nicu_audit/bin
+
+# Copy script
+cp bin/saemcclive.sh /opt/nicu_audit/bin/
+
+# Permissions
+chmod +x /opt/nicu_audit/bin/saemcclive.sh
+chown saem:saem /opt/nicu_audit/bin/saemcclive.sh
+
+# Create global command
+echo "[live] Creating global command..."
+
+cat << 'EOF' > /usr/local/bin/saem-live
+#!/bin/bash
+/opt/nicu_audit/bin/saemcclive.sh
+EOF
+
+chmod +x /usr/local/bin/saem-live
 
 # =========================
 # SERVICES
