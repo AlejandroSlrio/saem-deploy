@@ -72,6 +72,7 @@ echo "LOCATION=$LOCATION"
 # =========================
 echo "[1/9] Installing dependencies..."
 bash scripts/install_dependencies.sh
+apt install -y libraspberrypi-bin
 
 # =========================
 # USER SETUP
@@ -209,11 +210,7 @@ echo "[live] Installing saem-live..."
 
 mkdir -p /opt/nicu_audit/bin
 
-if [ -f "bin/saemcclive.sh" ]; then
-  cp bin/saemcclive.sh /opt/nicu_audit/bin/saemcclive.sh
-else
-  cp /opt/nicu_audit/src/saemcclive.sh /opt/nicu_audit/bin/saemcclive.sh
-fi
+cp bin/saemcclive.sh /opt/nicu_audit/bin/saemcclive.sh
 
 chmod +x /opt/nicu_audit/bin/saemcclive.sh
 chown saem:saem /opt/nicu_audit/bin/saemcclive.sh

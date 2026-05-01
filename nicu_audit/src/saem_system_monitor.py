@@ -1,72 +1,54 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-import time
 import os
+import time
 import subprocess
-from datetime import datetime
 
-OUT = "/opt/nicu_audit/data/system_monitor.csv"
+OUT_FILE = "/tmp/saem_sys.txt"
 
+def get_cpu_load():
+    try:
+        return os.getloadavg()[0]
+    except Exception:
+        return -1.0
 
-# =====================
-# TEMPERATURE
-# =====================
 def get_temp_c():
     try:
         with open("/sys/class/thermal/thermal_zone0/temp", "r") as f:
             return float(f.read().strip()) / 1000.0
     except Exception:
-        return -1.0
-
-# =====================
-# CPU LOAD
-# =====================
-def get_load():
-    try:
-        return os.getloadavg()[0]  # 1-min average
-    except Exception:
-        return -1.0
-
-
-# =====================
-# CSV WRITE
-# =====================
-def write_row(ts, load, temp):
-
-    new = not os.path.exists(OUT)
-
-    try:
-        with open(OUT, "a") as f:
-
-            if new:
-                f.write("date,time,load,temp\n")
-
-            f.write(
-                f"{ts.strftime('%Y-%m-%d')},"
-                f"{ts.strftime('%H:%M:%S')},"
-                f"{load:.2f},"
-                f"{temp:.2f}\n"
-            )
-
-    except Exception:
-        # nunca romper el loop por IO
         pass
 
+    try:
+        out = subprocess.check_output(["vcgencmd", "measure_temp"]).decode()
+        return float(out.replace("temp=", "").replace("'C\n", ""))
+    except Exception:
+        pass
 
-# =====================
-# MAIN
-# =====================
-print("[SYS] monitoring started")
+    return -1.0
 
-while True:
+def get_temp():
+    return get_temp_c()
 
-    ts = datetime.now().replace(microsecond=0)
+def write_status(load, temp):
+    try:
+        with open(OUT_FILE, "w") as f:
+            f.write(f"{load:.2f},{temp:.2f}")
+    except Exception:
+        pass
 
-    load = get_load()
-    temp = get_temp()
+def main():
+    print("[SYS] monitoring started")
 
-    write_row(ts, load, temp)
+    while True:
+        load = get_cpu_load()
+        temp = get_temp()
 
-    print(f"[SYS] load={load:.2f} | temp={temp:.1f}C")
+        write_status(load, temp)
+        print(f"[SYS] load={load:.2f} | temp={temp:.1f}C")
 
-    time.sleep(10)   # cada 10 s (muy ligero)
+        time.sleep(10)
+
+if __name__ == "__main__":
+    main()
