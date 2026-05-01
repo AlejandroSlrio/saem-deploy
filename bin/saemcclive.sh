@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ENV_FILE="/opt/saem/config/node.env"
+DATA_DIR="/opt/nicu_audit/data"
 
 if [ -f "$ENV_FILE" ]; then
     source "$ENV_FILE"
@@ -10,28 +11,28 @@ while true; do
 
 TODAY=$(date +%Y-%m-%d)
 
-# ===============================
-# NICU (levels + events)
-# ===============================
-NICU=$(grep -v '^date' /opt/nicu_audit/data/*${TODAY}*nicu_audit*.csv 2>/dev/null | tail -n 1)
+LEVELS_FILE=$(ls "$DATA_DIR"/*"${TODAY}"*_levels_1s.csv 2>/dev/null | tail -n 1)
+LOUD_FILE=$(ls "$DATA_DIR"/*"${TODAY}"*_loudness.csv 2>/dev/null | tail -n 1)
 
-DATE=$(echo "$NICU" | awk -F, '{print $1}')
-TIME=$(echo "$NICU" | awk -F, '{print $2}')
+NICU=""
+LOUD=""
 
-LAEQ=$(echo "$NICU" | awk -F, '{print $3}')
-EVT=$(echo "$NICU" | awk -F, '{print $(NF-1)}')
+if [ -n "$LEVELS_FILE" ] && [ -f "$LEVELS_FILE" ]; then
+    NICU=$(tail -n 1 "$LEVELS_FILE")
+fi
 
-# ===============================
-# LOUDNESS (perceptual)
-# ===============================
-LOUD=$(grep -v '^date' /opt/nicu_audit/data/*${TODAY}*perceptual*.csv 2>/dev/null | tail -n 1)
+if [ -n "$LOUD_FILE" ] && [ -f "$LOUD_FILE" ]; then
+    LOUD=$(tail -n 1 "$LOUD_FILE")
+fi
 
-LTL=$(echo "$LOUD" | awk -F, '{print $(NF-2)}')
-STL=$(echo "$LOUD" | awk -F, '{print $(NF-1)}')
+DATE=$(echo "$NICU" | cut -d',' -f1)
+TIME=$(echo "$NICU" | cut -d',' -f2)
+LAEQ=$(echo "$NICU" | cut -d',' -f3)
+EVT=$(echo "$NICU" | awk -F',' '{print $(NF-1)}')
 
-# ===============================
-# SYSTEM MONITOR (NEW PIPE)
-# ===============================
+LTL=$(echo "$LOUD" | cut -d',' -f6)
+STL=$(echo "$LOUD" | cut -d',' -f7)
+
 if [ -f /tmp/saem_sys.txt ]; then
     SYS=$(cat /tmp/saem_sys.txt)
     CPU=$(echo "$SYS" | cut -d',' -f1)
@@ -41,9 +42,6 @@ else
     TEMP="..."
 fi
 
-# ===============================
-# DISPLAY
-# ===============================
 clear
 echo "==============================="
 echo "       SAEMCC LIVE"
@@ -63,6 +61,6 @@ echo "CPU  : ${CPU:-...}"
 echo "Temp : ${TEMP:-...} °C"
 echo ""
 
-sleep 10
+sleep 2
 
 done

@@ -22,19 +22,37 @@ import transfer_functions
 FIFO_PATH = "/tmp/saem_loudness_fifo"
 
 FS_IN = 48000
-FS_LOUD = 16000   # 🔥 clave
+FS_LOUD = 16000
 
 BYTES_PER_SAMPLE = 4
 CHUNK_SAMPLES = FS_IN
 CHUNK_BYTES = CHUNK_SAMPLES * BYTES_PER_SAMPLE
 
-NODE_ID = "saem_n1"
 DATA_DIR = "/opt/nicu_audit/data"
 CAL_PATH = "/opt/nicu_audit/config/nicu_calibration.json"
+ENV_FILE = "/opt/saem/config/node.env"
 
-SILENCE_RMS = 5e-5   # 🔥 más agresivo
+SILENCE_RMS = 5e-5
 
 os.makedirs(DATA_DIR, exist_ok=True)
+
+
+# =====================
+# NODE ID (DINÁMICO)
+# =====================
+def load_node_id():
+    try:
+        with open(ENV_FILE) as f:
+            for line in f:
+                if line.startswith("NODE_ID="):
+                    return line.strip().split("=")[1]
+    except:
+        pass
+    return "UNKNOWN_NODE"
+
+
+NODE_ID = load_node_id()
+print(f"[WORKER] NODE_ID = {NODE_ID}")
 
 
 # =====================
@@ -56,7 +74,7 @@ print(f"[WORKER] DB_MAX = {DB_MAX:.2f} dB")
 
 
 # =====================
-# LOUDNESS (TU MÉTODO)
+# LOUDNESS
 # =====================
 def compute_features(x):
 
@@ -87,7 +105,7 @@ def compute_features(x):
 # =====================
 def csv_path():
     day = datetime.now().strftime("%Y-%m-%d")
-    return f"{DATA_DIR}/{NODE_ID}_{day}_perceptual.csv"
+    return f"{DATA_DIR}/{NODE_ID}_{day}_loudness.csv"
 
 
 def write_row(row):
@@ -131,12 +149,10 @@ with open(FIFO_PATH, "rb") as fifo:
         # =====================
         x16 = resample_poly(x, FS_LOUD, FS_IN)
 
-        # 🔥 REDUCCIÓN CPU EXTRA (sin romper modelo)
+        # reducción CPU
         x16 = x16[::2]
 
-        # =====================
-        # MONO → STEREO
-        # =====================
+        # mono → stereo
         x16 = np.repeat(x16[:, None], 2, axis=1)
 
         # =====================
