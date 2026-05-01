@@ -86,7 +86,11 @@ python3 -m venv /opt/saem/venv311
 /opt/saem/venv311/bin/pip install --upgrade pip
 
 /opt/saem/venv311/bin/pip install \
-    numpy<2 scipy pandas sounddevice tflite-runtime
+    "numpy<2" \
+    scipy \
+    pandas \
+    sounddevice \
+    tflite-runtime
 
 # =========================
 # DEPLOY FILES
