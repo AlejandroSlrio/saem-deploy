@@ -1,6 +1,8 @@
 [Unit]
 Description=NICU Audit Logger v5.2
-After=network.target
+After=network-online.target https-time-sync.service
+Wants=network-online.target
+Requires=https-time-sync.service
 
 [Service]
 User=saem

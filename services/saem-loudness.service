@@ -1,7 +1,7 @@
 [Unit]
 Description=SAEM Loudness Worker
-After=nicu-audit.service
-Requires=nicu-audit.service
+After=nicu-audit.service https-time-sync.service
+Requires=nicu-audit.service https-time-sync.service
 
 [Service]
 User=saem
