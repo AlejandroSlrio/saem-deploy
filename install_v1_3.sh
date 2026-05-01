@@ -123,7 +123,10 @@ pip install --extra-index-url https://www.piwheels.org/simple \
 echo "[7/9] Copying system files..."
 
 cp -r nicu_audit/* /opt/nicu_audit/
-cp -r saem/* /opt/saem/
+
+if [ -d "saem" ]; then
+    cp -r saem/* /opt/saem/
+fi
 
 # =========================
 # NODE CONFIG
