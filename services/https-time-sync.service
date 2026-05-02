@@ -6,7 +6,7 @@ Wants=network-online.target NetworkManager-wait-online.service
 [Service]
 Type=oneshot
 ExecStartPre=/bin/sleep 30
-ExecStart=/opt/nicu_audit/scripts/https-time-sync.sh
+ExecStart=/usr/local/bin/https-time-sync.sh
 RemainAfterExit=yes
 
 [Install]
