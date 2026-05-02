@@ -84,6 +84,18 @@ fi
 echo "[2/9] Setting up user..."
 id -u saem >/dev/null 2>&1 || useradd -m -s /bin/bash saem
 usermod -aG audio saem
+echo "[ssh] Preparing SSH access for user saem..."
+
+mkdir -p /home/saem/.ssh
+touch /home/saem/.ssh/authorized_keys
+
+chmod 700 /home/saem/.ssh
+chmod 600 /home/saem/.ssh/authorized_keys
+
+chown -R saem:saem /home/saem/.ssh
+
+systemctl enable ssh 2>/dev/null || true
+systemctl start ssh 2>/dev/null || true
 
 # =========================
 # AUDIO CHECK
