@@ -107,8 +107,7 @@ arecord -l || true
 # TIME SYNC
 # =========================
 echo "[4/9] Time sync..."
-systemctl enable systemd-timesyncd || true
-systemctl restart systemd-timesyncd || true
+timedatectl set-ntp true || true
 
 # =========================
 # TAILSCALE
@@ -142,6 +141,21 @@ chmod -R o+rx /root/.pyenv || true
 # =========================
 echo "[7/9] Deploy files..."
 bash scripts/deploy_files.sh
+
+# =========================
+# HTTPS TIME SYNC (CRÍTICO)
+# =========================
+echo "[time] Installing HTTPS time sync..."
+
+cp scripts/https-time-sync.sh /usr/local/bin/https-time-sync.sh
+chmod +x /usr/local/bin/https-time-sync.sh
+
+cp services/https-time-sync.service /etc/systemd/system/
+
+systemctl daemon-reload
+
+systemctl enable https-time-sync.service || true
+systemctl start https-time-sync.service || true
 
 # =========================
 # NODE METADATA
