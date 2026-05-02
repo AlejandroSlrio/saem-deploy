@@ -8,19 +8,13 @@ import subprocess
 OUT_FILE = "/tmp/saem_sys.txt"
 CSV_FILE = "/opt/nicu_audit/data/system_monitor.csv"
 
-def append_csv(load, temp):
-    try:
-        ts = time.strftime("%Y-%m-%d,%H:%M:%S")
-        with open(CSV_FILE, "a") as f:
-            f.write(f"{ts},{load:.2f},{temp:.2f}\n")
-    except:
-        pass
 
 def get_cpu_load():
     try:
         return os.getloadavg()[0]
     except Exception:
         return -1.0
+
 
 def get_temp_c():
     try:
@@ -37,32 +31,43 @@ def get_temp_c():
 
     return -1.0
 
-def get_temp():
-    return get_temp_c()
+
+def ensure_csv_header():
+    os.makedirs(os.path.dirname(CSV_FILE), exist_ok=True)
+
+    if not os.path.exists(CSV_FILE) or os.path.getsize(CSV_FILE) == 0:
+        with open(CSV_FILE, "w") as f:
+            f.write("date,time,cpu,temp\n")
+
 
 def write_status(load, temp):
-    try:
-        with open(OUT_FILE, "w") as f:
-            f.write(f"{load:.2f},{temp:.2f}")
-    except Exception:
-        pass
+    with open(OUT_FILE, "w") as f:
+        f.write(f"{load:.2f},{temp:.2f}")
+
+
+def append_csv(load, temp):
+    ts = time.strftime("%Y-%m-%d,%H:%M:%S")
+    with open(CSV_FILE, "a") as f:
+        f.write(f"{ts},{load:.2f},{temp:.2f}\n")
+
 
 def main():
     print("[SYS] monitoring started")
+    ensure_csv_header()
 
     while True:
         load = get_cpu_load()
-        temp = get_temp()
+        temp = get_temp_c()
 
-        write_status(load, temp)
-	append_csv(load, temp)
-        print(f"[SYS] load={load:.2f} | temp={temp:.1f}C")
-	
-	if not os.path.exists(CSV_FILE):
-    	    with open(CSV_FILE, "w") as f:
-                f.write("date,time,cpu,temp\n")
-        
-	time.sleep(10)
+        try:
+            write_status(load, temp)
+            append_csv(load, temp)
+            print(f"[SYS] load={load:.2f} | temp={temp:.1f}C")
+        except Exception as e:
+            print(f"[SYS][ERROR] {e}")
+
+        time.sleep(10)
+
 
 if __name__ == "__main__":
     main()
