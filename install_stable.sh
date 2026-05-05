@@ -6,6 +6,12 @@ echo " SAEM INSTALLER v1.0"
 echo "========================================="
 
 # =========================
+# FIX PATH (CRÍTICO)
+# =========================
+REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$REPO_ROOT"
+
+# =========================
 # FLAGS
 # =========================
 FULL_UPDATE=false
@@ -71,9 +77,9 @@ echo "LOCATION=$LOCATION"
 # DEPENDENCIES
 # =========================
 echo "[1/9] Installing dependencies..."
-bash scripts/install_dependencies.sh
-echo "[deps] Installing temperature tools..."
+bash "$REPO_ROOT/scripts/install_dependencies.sh"
 
+echo "[deps] Installing temperature tools..."
 if ! command -v vcgencmd >/dev/null 2>&1; then
     apt install -y raspi-utils-core || true
 fi
@@ -84,14 +90,13 @@ fi
 echo "[2/9] Setting up user..."
 id -u saem >/dev/null 2>&1 || useradd -m -s /bin/bash saem
 usermod -aG audio saem
-echo "[ssh] Preparing SSH access for user saem..."
 
+echo "[ssh] Preparing SSH access for user saem..."
 mkdir -p /home/saem/.ssh
 touch /home/saem/.ssh/authorized_keys
 
 chmod 700 /home/saem/.ssh
 chmod 600 /home/saem/.ssh/authorized_keys
-
 chown -R saem:saem /home/saem/.ssh
 
 systemctl enable ssh 2>/dev/null || true
@@ -104,10 +109,10 @@ echo "[3/9] Audio devices..."
 arecord -l || true
 
 # =========================
-# TIME SYNC
+# TIME SYNC (FIXED)
 # =========================
 echo "[4/9] Time sync..."
-timedatectl set-ntp true || true
+bash "$REPO_ROOT/scripts/setup_time_sync.sh"
 
 # =========================
 # TAILSCALE
@@ -126,12 +131,7 @@ echo "[6/9] Python environment..."
 rm -rf /opt/saem/venv311
 mkdir -p /opt/saem
 
-# IMPORTANT:
-# We intentionally use pyenv/compiled Python 3.11 only as builder,
-# then ensure /root/.pyenv is readable by the saem service user.
-# This is required because Raspberry Pi OS Trixie ships Python 3.13,
-# while tflite-runtime needs Python 3.11.
-bash scripts/setup_venv.sh
+bash "$REPO_ROOT/scripts/setup_venv.sh"
 
 chmod o+rx /root || true
 chmod -R o+rx /root/.pyenv || true
@@ -140,22 +140,7 @@ chmod -R o+rx /root/.pyenv || true
 # FILE DEPLOY
 # =========================
 echo "[7/9] Deploy files..."
-bash scripts/deploy_files.sh
-
-# =========================
-# HTTPS TIME SYNC (CRÍTICO)
-# =========================
-echo "[time] Installing HTTPS time sync..."
-
-cp scripts/https-time-sync.sh /usr/local/bin/https-time-sync.sh
-chmod +x /usr/local/bin/https-time-sync.sh
-
-cp services/https-time-sync.service /etc/systemd/system/
-
-systemctl daemon-reload
-
-systemctl enable https-time-sync.service || true
-systemctl start https-time-sync.service || true
+bash "$REPO_ROOT/scripts/deploy_files.sh"
 
 # =========================
 # NODE METADATA
@@ -193,7 +178,6 @@ EOF
 
 systemd-tmpfiles --create /etc/tmpfiles.d/saem.conf
 
-# Safety fallback
 rm -f /tmp/saem_loudness_fifo
 mkfifo /tmp/saem_loudness_fifo
 chown saem:saem /tmp/saem_loudness_fifo
@@ -204,7 +188,7 @@ chmod 660 /tmp/saem_loudness_fifo
 # =========================
 echo "[8/9] Deploy services..."
 
-cp services/*.service /etc/systemd/system/
+cp "$REPO_ROOT/services/"*.service /etc/systemd/system/
 systemctl daemon-reload
 
 systemctl enable nicu-audit.service
@@ -240,7 +224,7 @@ echo "[live] Installing saem-live..."
 
 mkdir -p /opt/nicu_audit/bin
 
-cp bin/saemcclive.sh /opt/nicu_audit/bin/saemcclive.sh
+cp "$REPO_ROOT/bin/saemcclive.sh" /opt/nicu_audit/bin/saemcclive.sh
 
 chmod +x /opt/nicu_audit/bin/saemcclive.sh
 chown saem:saem /opt/nicu_audit/bin/saemcclive.sh
@@ -284,13 +268,13 @@ echo "========================================="
 
 echo "Next steps:"
 echo "-----------------------------------------"
-echo "1) Reboot is recommended because user 'saem' was added to audio group:"
+echo "1) Reboot recommended:"
 echo "   sudo reboot"
 echo ""
-echo "2) After reboot, test:"
+echo "2) Test:"
 echo "   saem-live"
 echo ""
-echo "3) Check logs:"
+echo "3) Logs:"
 echo "   journalctl -u nicu-audit -f"
 echo "   journalctl -u saem-loudness -f"
 echo ""
