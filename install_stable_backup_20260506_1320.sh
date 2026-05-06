@@ -95,12 +95,6 @@ echo "[ssh] Preparing SSH access for user saem..."
 mkdir -p /home/saem/.ssh
 touch /home/saem/.ssh/authorized_keys
 
-if [ -n "${SSH_PUB_KEY:-}" ]; then
-  echo "[ssh] Installing provided SSH public key..."
-  grep -qxF "$SSH_PUB_KEY" /home/saem/.ssh/authorized_keys || \
-    echo "$SSH_PUB_KEY" >> /home/saem/.ssh/authorized_keys
-fi
-
 chmod 700 /home/saem/.ssh
 chmod 600 /home/saem/.ssh/authorized_keys
 chown -R saem:saem /home/saem/.ssh
@@ -124,18 +118,10 @@ bash "$REPO_ROOT/scripts/setup_time_sync.sh"
 # TAILSCALE
 # =========================
 echo "[5/9] Tailscale..."
-
 if ! command -v tailscale >/dev/null 2>&1; then
   curl -fsSL https://tailscale.com/install.sh | sh
 fi
-
-if [ -n "${TAILSCALE_AUTHKEY:-}" ]; then
-  echo "[tailscale] Bringing node online..."
-  tailscale up --authkey "$TAILSCALE_AUTHKEY" --hostname "$NODE_ID" --ssh || true
-else
-  echo "[tailscale] No auth key provided. Run manually if needed:"
-  echo "   sudo tailscale up"
-fi
+echo "Run later if needed: sudo tailscale up"
 
 # =========================
 # PYTHON ENV
