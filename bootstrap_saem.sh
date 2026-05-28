@@ -17,13 +17,28 @@ read -p "LOCATION, e.g. inc-2: " LOCATION
 
 echo "[1/5] Installing prerequisites..."
 sudo apt update
-sudo apt install -y git python3-dbus
+sudo apt install -y git 
 
-echo "[2/5] Installing eduroam..."
-python3 external/eduroam/eduroam-linux-UoG.py \
-  --username "$EDUROAM_USER" \
-  --password "$EDUROAM_PASS" \
-  --silent
+echo "[2/5] Configuring eduroam with NetworkManager..."
+
+sudo nmcli connection delete eduroam 2>/dev/null || true
+
+sudo nmcli connection add \
+  type wifi \
+  ifname wlan0 \
+  con-name eduroam \
+  ssid eduroam
+
+sudo nmcli connection modify eduroam \
+  wifi-sec.key-mgmt wpa-eap \
+  802-1x.eap peap \
+  802-1x.phase2-auth mschapv2 \
+  802-1x.identity "$EDUROAM_USER" \
+  802-1x.password "$EDUROAM_PASS" \
+  802-1x.anonymous-identity "anonymous@universityofgalway.ie" \
+  connection.autoconnect yes
+
+sudo nmcli connection up eduroam
 
 echo "[3/5] Checking internet..."
 ping -c 3 github.com
