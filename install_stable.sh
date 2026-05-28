@@ -12,6 +12,19 @@ REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$REPO_ROOT"
 
 # =========================
+# HARDWARE DETECTION
+# =========================
+MODEL="$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || echo unknown)"
+ENABLE_LOUDNESS=true
+
+if echo "$MODEL" | grep -q "Raspberry Pi 4"; then
+  ENABLE_LOUDNESS=false
+fi
+
+echo "[hardware] Model: $MODEL"
+echo "[hardware] ENABLE_LOUDNESS=$ENABLE_LOUDNESS"
+
+# =========================
 # FLAGS
 # =========================
 FULL_UPDATE=false
@@ -206,8 +219,15 @@ cp "$REPO_ROOT/services/"*.service /etc/systemd/system/
 systemctl daemon-reload
 
 systemctl enable nicu-audit.service
-systemctl enable saem-loudness.service
 systemctl enable saem-system-monitor.service
+
+if [ "$ENABLE_LOUDNESS" = true ]; then
+  echo "[services] Enabling loudness service..."
+  systemctl enable saem-loudness.service
+else
+  echo "[services] Disabling loudness service on Raspberry Pi 4..."
+  systemctl disable saem-loudness.service || true
+fi
 
 # =========================
 # RUNTIME DIRECTORIES
@@ -257,8 +277,13 @@ echo "[9/9] Starting services..."
 
 systemctl restart saem-system-monitor.service || true
 systemctl restart nicu-audit.service || true
-sleep 5
-systemctl restart saem-loudness.service || true
+
+if [ "$ENABLE_LOUDNESS" = true ]; then
+  sleep 5
+  systemctl restart saem-loudness.service || true
+else
+  systemctl stop saem-loudness.service || true
+fi
 
 # =========================
 # HEALTH CHECK
@@ -271,7 +296,11 @@ echo "nicu-audit:"
 systemctl is-active nicu-audit.service || true
 
 echo "saem-loudness:"
-systemctl is-active saem-loudness.service || true
+if [ "$ENABLE_LOUDNESS" = true ]; then
+  systemctl is-active saem-loudness.service || true
+else
+  echo "disabled on Raspberry Pi 4"
+fi
 
 echo "saem-system-monitor:"
 systemctl is-active saem-system-monitor.service || true
