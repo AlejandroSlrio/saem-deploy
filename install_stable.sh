@@ -170,6 +170,18 @@ echo "[7/9] Deploy files..."
 bash "$REPO_ROOT/scripts/deploy_files.sh"
 
 # =========================
+# PI4 LIGHT MODE
+# =========================
+if [ "$ENABLE_LOUDNESS" = false ]; then
+  echo "[pi4] Disabling loudness FIFO in nicu-audit..."
+
+  sed -i 's|"fifo_path": "/tmp/saem_loudness_fifo"|"fifo_path": ""|g' \
+    /opt/nicu_audit/src/nicu_audit_levels_v5_1_3.py
+
+  echo "[pi4] Loudness service will remain disabled."
+fi
+
+# =========================
 # NODE METADATA
 # =========================
 echo "[config] Writing node metadata..."
