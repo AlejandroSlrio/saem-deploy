@@ -52,17 +52,28 @@ echo "[update] Running selected update: $UPDATE_NAME" | tee -a "$LOG"
 bash "$UPDATE_SCRIPT" | tee -a "$LOG"
 
 echo "[update] Restarting SAEM services..." | tee -a "$LOG"
+
 systemctl restart saem-system-monitor || true
 systemctl restart nicu-audit || true
-sleep 5
-systemctl restart saem-loudness || true
+
+if systemctl is-enabled saem-loudness >/dev/null 2>&1; then
+    sleep 5
+    systemctl restart saem-loudness || true
+else
+    echo "[update] saem-loudness disabled, skipping..." | tee -a "$LOG"
+fi
 
 echo "[update] Status:" | tee -a "$LOG"
 echo "nicu-audit:" | tee -a "$LOG"
 systemctl is-active nicu-audit | tee -a "$LOG" || true
 
 echo "saem-loudness:" | tee -a "$LOG"
-systemctl is-active saem-loudness | tee -a "$LOG" || true
+
+if systemctl is-enabled saem-loudness >/dev/null 2>&1; then
+    systemctl is-active saem-loudness | tee -a "$LOG" || true
+else
+    echo "disabled" | tee -a "$LOG"
+fi
 
 echo "saem-system-monitor:" | tee -a "$LOG"
 systemctl is-active saem-system-monitor | tee -a "$LOG" || true
