@@ -1,7 +1,7 @@
 {
-  "offset_db": 113.1160767795831,
-  "offset_db_raw": 113.38267265485133,
-  "offset_db_A": 113.1160767795831,
+  "offset_db": 110.0,
+  "offset_db_raw": 110.0,
+  "offset_db_A": 110.0,
   "calibrator_db": 94.0,
   "calibrator_hz": 1000.0,
   "device": "plughw:CARD=USBC,DEV=0",
